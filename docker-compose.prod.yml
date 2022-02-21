@@ -1,0 +1,27 @@
+version: '3'
+services:
+  redis:
+    image: "redis:alpine"
+    restart: always
+  web:
+    image: "backenddjangoacr.azurecr.io/backenddjango:133"
+    command: python manage.py runserver 0.0.0.0:8080
+    ports:
+      - "8080:8080"
+    restart: always
+    depends_on:
+      - redis
+  celery:
+    image: "backenddjangoacr.azurecr.io/backenddjango:133"
+    command: celery -A django_demo worker -l info
+    restart: always
+    depends_on:
+      - redis
+      - web
+  celery-beat:
+    image: "backenddjangoacr.azurecr.io/backenddjango:133"
+    command: celery -A django_demo beat -l info
+    restart: always
+    depends_on:
+      - redis
+      - web
